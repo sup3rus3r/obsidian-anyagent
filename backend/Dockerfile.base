@@ -1,0 +1,37 @@
+FROM python:3.12-slim
+
+LABEL description="Obsidian Auto Agents — per-project execution sandbox"
+
+# System tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl wget git unzip zip \
+    build-essential \
+    ca-certificates \
+    jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# Node.js 20 LTS
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python tooling
+RUN pip install --no-cache-dir uv
+
+# Common Python data/ML packages (pre-installed for speed)
+RUN pip install --no-cache-dir \
+    requests httpx \
+    pandas numpy \
+    matplotlib seaborn \
+    scikit-learn \
+    beautifulsoup4 lxml \
+    Pillow \
+    python-dotenv \
+    rich
+
+# Workspace
+RUN mkdir -p /workspace
+WORKDIR /workspace
+
+# Keep container alive — actual commands come via docker exec
+CMD ["tail", "-f", "/dev/null"]
